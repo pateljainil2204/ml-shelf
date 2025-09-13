@@ -1,5 +1,6 @@
 import React from 'react';
-import { Download, Tag, Calendar, User, Database } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Download, Tag, Calendar, Database, Sparkles } from 'lucide-react';
 import { Database as DB } from '../lib/supabase';
 
 type Model = DB['public']['Tables']['models']['Row'];
@@ -24,72 +25,187 @@ export function ModelCard({ model, onDownload }: ModelCardProps) {
     });
   };
 
+  const cardVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: {
+        duration: 0.5,
+        ease: "easeOut"
+      }
+    }
+  };
+
   return (
-    <div className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-200">
-      <div className="p-6">
+    <motion.div
+      className="group relative bg-background-card/30 backdrop-blur-sm rounded-2xl shadow-card hover:shadow-card-hover border border-border-primary hover:border-primary/30 transition-all duration-300 overflow-hidden"
+      variants={cardVariants}
+      whileHover={{ 
+        y: -8,
+        scale: 1.02,
+      }}
+      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+    >
+      {/* Gradient overlay on hover */}
+      <motion.div
+        className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+      />
+      
+      {/* Glow effect */}
+      <motion.div
+        className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        style={{
+          background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%)',
+          filter: 'blur(20px)',
+          transform: 'scale(1.1)',
+        }}
+      />
+
+      <div className="relative p-6">
+        {/* Header */}
         <div className="flex items-start justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900 line-clamp-2">
+          <motion.h3 
+            className="text-lg font-bold text-text-primary line-clamp-2 group-hover:text-primary transition-colors duration-300"
+            whileHover={{ scale: 1.02 }}
+          >
             {model.name}
-          </h3>
-          <div className="text-right">
-            <div className="text-sm text-gray-500">{formatSize(model.size_bytes)}</div>
+          </motion.h3>
+          <div className="text-right flex-shrink-0 ml-4">
+            <motion.div 
+              className="text-sm font-medium text-text-secondary bg-background-tertiary/50 px-3 py-1 rounded-lg"
+              whileHover={{ scale: 1.05 }}
+            >
+              {formatSize(model.size_bytes)}
+            </motion.div>
             {model.framework && (
-              <div className="text-xs text-blue-600 font-medium mt-1">
+              <motion.div 
+                className="text-xs text-primary font-medium mt-2 bg-primary/10 px-2 py-1 rounded-md"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.1 }}
+              >
                 {model.framework}
-              </div>
+              </motion.div>
             )}
           </div>
         </div>
 
+        {/* Description */}
         {model.description && (
-          <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+          <motion.p 
+            className="text-text-muted text-sm mb-4 line-clamp-3 leading-relaxed"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+          >
             {model.description}
-          </p>
+          </motion.p>
         )}
 
-        <div className="space-y-2 mb-4">
+        {/* Metadata */}
+        <div className="space-y-3 mb-4">
           {model.format && (
-            <div className="flex items-center text-sm text-gray-500">
-              <Database className="w-4 h-4 mr-2" />
+            <motion.div 
+              className="flex items-center text-sm text-text-muted"
+              whileHover={{ x: 5 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              <Database className="w-4 h-4 mr-3 text-primary" />
               <span>{model.format}</span>
-            </div>
+            </motion.div>
           )}
           
-          <div className="flex items-center text-sm text-gray-500">
-            <Calendar className="w-4 h-4 mr-2" />
+          <motion.div 
+            className="flex items-center text-sm text-text-muted"
+            whileHover={{ x: 5 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
+            <Calendar className="w-4 h-4 mr-3 text-accent" />
             <span>{formatDate(model.created_at)}</span>
-          </div>
+          </motion.div>
         </div>
 
+        {/* Tags */}
         {model.tags && model.tags.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-4">
-            {model.tags.map((tag, index) => (
-              <span
+          <motion.div 
+            className="flex flex-wrap gap-2 mb-6"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            {model.tags.slice(0, 3).map((tag, index) => (
+              <motion.span
                 key={index}
-                className="inline-flex items-center px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full"
+                className="inline-flex items-center px-3 py-1 bg-background-tertiary/50 text-text-secondary text-xs rounded-full border border-border-primary group-hover:border-primary/30 transition-colors duration-300"
+                whileHover={{ 
+                  scale: 1.05,
+                  backgroundColor: "rgba(59, 130, 246, 0.1)",
+                  color: "#60a5fa"
+                }}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.1 * index }}
               >
                 <Tag className="w-3 h-3 mr-1" />
                 {tag}
-              </span>
+              </motion.span>
             ))}
-          </div>
+            {model.tags.length > 3 && (
+              <motion.span
+                className="inline-flex items-center px-3 py-1 bg-primary/10 text-primary text-xs rounded-full"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.3 }}
+              >
+                +{model.tags.length - 3} more
+              </motion.span>
+            )}
+          </motion.div>
         )}
 
-        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-          <div className="flex items-center text-sm text-gray-500">
-            <Download className="w-4 h-4 mr-1" />
-            <span>{model.downloads} downloads</span>
-          </div>
-          
-          <button
-            onClick={() => onDownload(model)}
-            className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors flex items-center space-x-2 text-sm font-medium"
+        {/* Footer */}
+        <div className="flex items-center justify-between pt-4 border-t border-border-primary/50">
+          <motion.div 
+            className="flex items-center text-sm text-text-muted"
+            whileHover={{ scale: 1.05 }}
           >
-            <Download className="w-4 h-4" />
-            <span>Download</span>
-          </button>
+            <Download className="w-4 h-4 mr-2 text-success" />
+            <span className="font-medium">{model.downloads} downloads</span>
+          </motion.div>
+          
+          <motion.button
+            onClick={() => onDownload(model)}
+            className="group/btn relative bg-gradient-to-r from-success to-emerald-600 text-white px-6 py-2 rounded-xl font-bold text-sm shadow-glow overflow-hidden"
+            whileHover={{ 
+              scale: 1.05,
+              boxShadow: "0 0 25px rgba(16, 185, 129, 0.5)",
+            }}
+            whileTap={{ scale: 0.98 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-emerald-500 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"
+            />
+            <div className="relative flex items-center space-x-2">
+              <Download className="w-4 h-4" />
+              <span>Download</span>
+              <motion.div
+                animate={{
+                  y: [0, -2, 0],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+              >
+                <Sparkles className="w-3 h-3" />
+              </motion.div>
+            </div>
+          </motion.button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
